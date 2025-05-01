@@ -6,60 +6,35 @@ using UnityEngine.InputSystem;
 public class FPSLook : MonoBehaviour
 {
     [Header("Settings")]
-    [Tooltip("Sensitivity of the camera movement")]
-    public float Sensitivity = 1;
+    [Tooltip("Sensitivity of the camera movement.")]
+    public float sensitivity = 1;
     [Header("Camera Limits")]
+    [Tooltip("Lowest angle camera can tilt.")]
     public float xRotMin = -89;
+    [Tooltip("Highest angle camera can tilt.")]
     public float xRotMax = 89;
     [Header("Unity Set Up")]
-    public Transform Cam;
+    public Transform cam;
 
-    private float xRotation = 0;
-
-    // Input System boilerplate
-    private InputSystem_Actions actions;
-    private InputAction look;
-
-    private void Awake() 
-    {
-        // Input System boilerplate
-        actions = new();
-    }
+    private float _xRotation = 0;
 
     private void Start() {
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void Update()
+    public void DoLook(InputAction.CallbackContext context)
     {
-        DoLook();
-    }
-
-    private void DoLook()
-    {
-        // Reading input
-        Vector2 input = look.ReadValue<Vector2>();
-        input *= Sensitivity;
+        // grab input value
+        Vector2 input = context.ReadValue<Vector2>();
+        // factor in sensitivity
+        input *= sensitivity;
 
         // Horizontal turn
         transform.Rotate(Vector3.up, input.x);
 
         // Vertical turn
-        xRotation -= input.y;
-        xRotation = Mathf.Clamp(xRotation, xRotMin, xRotMax);
-        Cam.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(xRotation, 0, 0));
-    }
-
-    private void OnEnable()
-    {
-        // Input System boilerplate
-        look = actions.Player.Look;
-        look.Enable();
-    }
-
-    private void OnDisable()
-    {
-        // Input System boilerplate
-        look.Disable();
+        _xRotation -= input.y;
+        _xRotation = Mathf.Clamp(_xRotation, xRotMin, xRotMax);
+        cam.SetLocalPositionAndRotation(Vector3.zero, Quaternion.Euler(_xRotation, 0, 0));
     }
 }
